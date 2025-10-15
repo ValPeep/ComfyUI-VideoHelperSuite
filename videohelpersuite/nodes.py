@@ -246,6 +246,7 @@ class VideoCombine:
                 ),
                 "loop_count": ("INT", {"default": 0, "min": 0, "max": 100, "step": 1}),
                 "filename_prefix": ("STRING", {"default": "AnimateDiff"}),
+                "more_ffmpeg_options": ("STRING", {"default": ""}),
                 "format": (["image/gif", "image/webp"] + ffmpeg_formats, {'formats': format_widgets}),
                 "pingpong": ("BOOLEAN", {"default": False}),
                 "save_output": ("BOOLEAN", {"default": True}),
@@ -275,6 +276,7 @@ class VideoCombine:
         images=None,
         latents=None,
         filename_prefix="AnimateDiff",
+        more_ffmpeg_options="",
         format="image/gif",
         pingpong=False,
         save_output=True,
@@ -520,7 +522,11 @@ class VideoCombine:
             if "inputs_main_pass" in video_format:
                 in_args_len = args.index("-i") + 2 # The index after ["-i", "-"]
                 args = args[:in_args_len] + video_format['inputs_main_pass'] + args[in_args_len:]
-
+            if more_ffmpeg_options and more_ffmpeg_options.strip():
+                # Split the string by spaces, handling quotes properly
+                import shlex
+                args += shlex.split(more_ffmpeg_options)
+                
             if output_process is None:
                 if 'gifski_pass' in video_format:
                     format = 'image/gif'
